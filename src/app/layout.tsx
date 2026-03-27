@@ -13,9 +13,9 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={cn("h-full", "antialiased", "font-sans", geist.variable)}
+      className={cn("h-full", "antialiased", "font-sans", geist.variable,'dark')}
     >
-      <body className="min-h-full ">{children}</body>
+      <body className="min-h-full p-4 ">{children}</body>
     </html>
   );
 }
