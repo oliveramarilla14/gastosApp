@@ -1,12 +1,13 @@
 import { Card } from '@/components/ui/card';
-import { Car, HelpCircle, Home, Lightbulb, ShoppingCart } from 'lucide-react';
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
+import { IconName, mapIcon } from '@/lib/icons';
+import { formatNumber, formatoMoneda } from '@/lib/numbers';
 
 interface DetalleMensual {
-  idDeuda: number;
+  idGasto: number;
   concepto: string;
-  icon: string;
+  icon: IconName;
   categoria: string;
   pagoMes: number; //cuota o mensualidad de tarjeta
   totalDeuda: number; //total cuotas o total deuda tarjetau
@@ -16,7 +17,7 @@ interface DetalleMensual {
 
 const gastosAbril: DetalleMensual[] = [
   {
-    idDeuda: 1,
+    idGasto: 1,
     concepto: 'Alquiler',
     icon: 'home',
     categoria: 'Vivienda',
@@ -26,7 +27,7 @@ const gastosAbril: DetalleMensual[] = [
     monto: 5000000
   },
   {
-    idDeuda: 2,
+    idGasto: 2,
     concepto: 'Supermercado',
     icon: 'shopping-cart',
     categoria: 'Alimentación',
@@ -36,7 +37,7 @@ const gastosAbril: DetalleMensual[] = [
     monto: 1500000
   },
   {
-    idDeuda: 3,
+    idGasto: 3,
     concepto: 'Electricidad',
     icon: 'lightbulb',
     categoria: 'Servicios',
@@ -46,7 +47,7 @@ const gastosAbril: DetalleMensual[] = [
     monto: 300000
   },
   {
-    idDeuda: 25,
+    idGasto: 25,
     concepto: 'TC Conti',
     icon: 'home',
     categoria: 'Tarjetas',
@@ -61,22 +62,6 @@ const ingresoMensual = 10000000;
 const totalGastos = gastosAbril.reduce((acc, gasto) => acc + gasto.monto, 0);
 const restante = ingresoMensual - totalGastos;
 
-const formatoMoneda = new Intl.NumberFormat('es-PY', {
-  style: 'currency',
-  currency: 'PYG',
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 0
-});
-const formatNumber = new Intl.NumberFormat('es-PY', {
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 0
-});
-const iconMap = {
-  home: Home,
-  car: Car,
-  lightbulb: Lightbulb,
-  'shopping-cart': ShoppingCart
-} as const;
 
 export function MonthTable() {
   const mes = 'Abril';
@@ -98,11 +83,10 @@ export function MonthTable() {
         </TableHeader>
         <TableBody>
           {gastosAbril.map((gasto) => {
-            const Icon = iconMap[gasto.icon as keyof typeof iconMap] ?? HelpCircle;
-
+            const Icon = mapIcon(gasto.icon);
             return (
               <TableRow
-                key={gasto.idDeuda}
+                key={gasto.idGasto}
                 className={cn(gasto.pagado ? '' : 'bg-green-500 hover:bg-green-800', 'cursor-pointer')}
               >
                 <TableCell align='left'> {gasto.concepto}</TableCell>

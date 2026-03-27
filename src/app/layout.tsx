@@ -15,7 +15,10 @@ export default function RootLayout({
       lang="es"
       className={cn("h-full", "antialiased", "font-sans", geist.variable,'dark')}
     >
-      <body className="min-h-full p-4 ">{children}</body>
+      <body className="min-h-full p-4 ">
+          <h1 className='text-2xl font-bold text-center mb-5'>Gastos App</h1>
+        {children}
+        </body>
     </html>
   );
 }
