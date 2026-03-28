@@ -2,9 +2,9 @@
 
 import { Button } from '@/components/ui/button';
 import { FieldGroup, FieldSeparator, FieldSet, FieldTitle } from '@/components/ui/field';
-import InputController from '@/features/formControllers/InputController';
-import SelectController from '@/features/formControllers/SelectController';
-import SwitchController from '@/features/formControllers/SwitchController';
+import InputController from '@/shared/formControllers/InputController';
+import SelectController from '@/shared/formControllers/SelectController';
+import SwitchController from '@/shared/formControllers/SwitchController';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { useForm, useWatch } from 'react-hook-form';
 import { formSchema, FormValues } from './schema';

@@ -1,8 +1,8 @@
 import "./globals.css";
-import { Geist } from "next/font/google";
+import { Geist, Figtree } from "next/font/google";
 import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const figtree = Figtree({subsets:['latin'],variable:'--font-sans'});
 
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={cn("h-full", "antialiased", "font-sans", geist.variable,'dark')}
+      className={cn("h-full", "antialiased", "font-sans", figtree.variable,'dark')}
     >
       <body className="min-h-full p-4 ">
           <h1 className='text-2xl font-bold text-center mb-5'>Gastos App</h1>
