@@ -3,7 +3,7 @@ import { Figtree } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import Provider from '@/core/Provider';
 import AppSidebar from '@/shared/sidebar/AppSidebar';
-import { SidebarTrigger } from '@/components/ui/sidebar';
+import AppTopbar from '@/shared/topbar/AppTopbar';
 
 const figtree = Figtree({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -17,8 +17,10 @@ export default function RootLayout({
       <body className='min-h-full'>
         <Provider>
           <AppSidebar />
-          <SidebarTrigger />
-          <main className='w-full px-5 mt-8'>{children}</main>
+          <div className='w-full'>
+            <AppTopbar />
+            <main className='w-full px-5'>{children}</main>
+          </div>
         </Provider>
       </body>
     </html>

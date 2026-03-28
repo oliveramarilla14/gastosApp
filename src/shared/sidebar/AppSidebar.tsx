@@ -73,7 +73,7 @@ export default function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <p className='text-xs text-muted-foreground px-2 py-1'>v{version}</p>
+        <p className='text-xs text-muted-foreground py-1'>v{version}</p>
       </SidebarFooter>
     </Sidebar>
   );
