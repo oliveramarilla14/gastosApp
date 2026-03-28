@@ -10,89 +10,32 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { Progress, ProgressLabel, ProgressValue } from '@/components/ui/progress';
-import { IconName, mapIcon } from '@/lib/icons';
+import { GastoType } from '@/entites/types/gasto.type';
+import { mapIcon } from '@/lib/icons';
 import { formatoMoneda } from '@/lib/numbers';
 import { cn } from '@/lib/utils';
+import { getGastos } from '@/services/gastos/gastos.services';
 import { CalendarX } from 'lucide-react';
 import Link from 'next/link';
 
-type TipoGasto = 'TARJETA' | 'PRESTAMO' | 'FIJO';
-
-interface Gasto {
-  idGasto: number;
-  concepto: string;
-  finalizado: boolean;
-  categoria: string;
-  fechaFinalizacion: string | null;
-  tipoGasto: TipoGasto;
-  montoAbonado: number;
-  montoDeuda: number; // compromiso mensual en todos los tipos
-  montoTotal: number;
-  cuotasAbonadas: number | null;
-  totalCuotas: number | null;
-  icon: IconName;
-}
-
-const gastos: Gasto[] = [
-  {
-    idGasto: 1,
-    tipoGasto: 'TARJETA',
-    concepto: 'AMEX Itau',
-    icon: 'creditCard',
-    categoria: 'Tarjeta de crédito',
-    montoAbonado: 1000000,
-    montoDeuda: 200000,
-    montoTotal: 7000000,
-    cuotasAbonadas: null,
-    totalCuotas: null,
-    finalizado: false,
-    fechaFinalizacion: null
-  },
-  {
-    idGasto: 2,
-    tipoGasto: 'PRESTAMO',
-    concepto: 'basa',
-    categoria: 'Prestamo',
-    icon: 'dollar',
-    montoAbonado: 200000,
-    montoDeuda: 100000,
-    montoTotal: 5000000,
-    cuotasAbonadas: 2,
-    totalCuotas: 48,
-    finalizado: false,
-    fechaFinalizacion: '2025-12-31'
-  },
-  {
-    idGasto: 3,
-    tipoGasto: 'FIJO',
-    concepto: 'Alquiler',
-    categoria: 'Hogar',
-    icon: 'home',
-    montoAbonado: 0,
-    montoDeuda: 300_000,
-    montoTotal: 0,
-    cuotasAbonadas: null,
-    totalCuotas: null,
-    finalizado: false,
-    fechaFinalizacion: null
-  }
-];
-
-function getProgress(gasto: Gasto): number {
+function getProgress(gasto: GastoType): number {
   if (gasto.tipoGasto === 'PRESTAMO' && gasto.cuotasAbonadas != null && gasto.totalCuotas)
     return (gasto.cuotasAbonadas / gasto.totalCuotas) * 100;
   if (gasto.tipoGasto === 'TARJETA' && gasto.montoTotal > 0) return (gasto.montoAbonado / gasto.montoTotal) * 100;
   return 100;
 }
 
-function getProgressLabel(gasto: Gasto): string {
+function getProgressLabel(gasto: GastoType): string {
   if (gasto.tipoGasto === 'PRESTAMO') return `${gasto.cuotasAbonadas ?? 0}/${gasto.totalCuotas ?? 0} cuotas`;
   if (gasto.tipoGasto === 'TARJETA')
     return `${formatoMoneda.format(gasto.montoAbonado)} / ${formatoMoneda.format(gasto.montoTotal)}`;
   return 'Recurrente';
 }
 
-export default function Gasto() {
+export default async function Gasto() {
+  const gastos = await getGastos();
+  console.log("gastos",gastos)
+  
   return (
     <main>
       <div className='flex justify-between'>

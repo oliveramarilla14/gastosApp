@@ -13,10 +13,20 @@ enum TipoGasto {
   FIJO
 }
 
+model CategoriaGasto {
+  idCategoria String  @id @default(cuid())
+  nombre      String
+  gastos      Gasto[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Gasto {
-  idGasto          String    @id @default(cuid())
+  idGasto          String         @id @default(cuid())
   concepto         String
   idCategoria      String
+  categoria        CategoriaGasto @relation(fields: [idCategoria], references: [idCategoria])
   finalizado       Boolean   @default(false)
   fechaFinalizacion DateTime?
   tipoGasto        TipoGasto
