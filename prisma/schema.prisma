@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TipoGasto {
+  TARJETA
+  PRESTAMO
+  FIJO
+}
+
+model Gasto {
+  idGasto          String    @id @default(cuid())
+  concepto         String
+  idCategoria      String
+  finalizado       Boolean   @default(false)
+  fechaFinalizacion DateTime?
+  tipoGasto        TipoGasto
+  montoDeuda       Int
+  montoAbonado     Int       @default(0)
+  montoTotal       Int       @default(0)
+  cuotasAbonadas   Int       @default(0)
+  totalCuotas      Int       @default(0)
+  diaPago          Int
+  idOwner          String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
