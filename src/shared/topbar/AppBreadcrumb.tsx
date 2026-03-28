@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -31,18 +32,18 @@ export default function AppBreadcrumb() {
         {breadcrumbs.map((segment, index) => {
           const isLast = index === breadcrumbs.length - 1;
           return (
-            <BreadcrumbItem key={index}>
-              {!isLast && segment.url ? (
-                <>
+            <React.Fragment key={index}>
+              <BreadcrumbItem>
+                {!isLast && segment.url ? (
                   <BreadcrumbLink asChild>
                     <Link href={segment.url}>{segment.name}</Link>
                   </BreadcrumbLink>
-                  <BreadcrumbSeparator />
-                </>
-              ) : (
-                <BreadcrumbPage>{segment.name}</BreadcrumbPage>
-              )}
-            </BreadcrumbItem>
+                ) : (
+                  <BreadcrumbPage>{segment.name}</BreadcrumbPage>
+                )}
+              </BreadcrumbItem>
+              {!isLast && <BreadcrumbSeparator />}
+            </React.Fragment>
           );
         })}
       </BreadcrumbList>
