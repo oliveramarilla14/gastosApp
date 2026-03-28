@@ -1,24 +1,26 @@
-import "./globals.css";
-import { Geist, Figtree } from "next/font/google";
-import { cn } from "@/lib/utils";
+import './globals.css';
+import { Figtree } from 'next/font/google';
+import { cn } from '@/lib/utils';
+import Provider from '@/core/Provider';
+import AppSidebar from '@/shared/sidebar/AppSidebar';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
-const figtree = Figtree({subsets:['latin'],variable:'--font-sans'});
-
+const figtree = Figtree({ subsets: ['latin'], variable: '--font-sans' });
 
 export default function RootLayout({
-  children,
+  children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="es"
-      className={cn("h-full", "antialiased", "font-sans", figtree.variable,'dark')}
-    >
-      <body className="min-h-full p-4 ">
-          <h1 className='text-2xl font-bold text-center mb-5'>Gastos App</h1>
-        {children}
-        </body>
+    <html lang='es' className={cn('antialiased', 'font-sans', figtree.variable, 'dark')}>
+      <body className='min-h-full'>
+        <Provider>
+          <AppSidebar />
+          <SidebarTrigger />
+          <main className='w-full px-5 mt-8'>{children}</main>
+        </Provider>
+      </body>
     </html>
   );
 }
