@@ -16,7 +16,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { HTMLInputTypeAttribute } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
+import { Controller, Path, UseFormReturn, useForm, useWatch } from 'react-hook-form';
+import * as z from 'zod';
 
 const categorias = [
   { id: 1, name: 'Alquiler' },
@@ -32,13 +34,47 @@ const tipoGasto = [
   { id: 3, name: 'Prestamo' }
 ];
 
+const formSchema = z.object({
+  finalizado: z.boolean(),
+  concepto: z.string().min(1, 'El concepto es requerido'),
+  categoria: z.enum(['Alquiler', 'Servicios', 'Comida', 'Transporte', 'Salud'], 'Categoria es requerida'),
+  monto: z.coerce.number().min(1, 'Introduzca un monto válido'),
+  diaPago: z.coerce.number().min(1, 'El día de pago es requerido').max(31, 'El día de pago debe estar entre 1 y 31'),
+  tipo: z.enum(['Fijo', 'Tarjeta', 'Prestamo'], 'Tipo es requerido'),
+  montoAbonado: z.coerce.number().min(1, 'Introduzca un monto válido').optional(),
+  montoTotal: z.coerce.number().min(1, 'Introduzca un monto válido').optional(),
+  cuotasAbonadas: z.coerce.number().min(1, 'Introduzca un número válido').optional(),
+  totalCuotas: z.coerce.number().min(1, 'Introduzca un número válido').optional()
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+const defaultValues: FormValues = {
+  finalizado: false,
+  concepto: '',
+  categoria: 'Alquiler',
+  monto: 0,
+  diaPago: 1,
+  tipo: 'Fijo',
+  montoAbonado: 0,
+  montoTotal: 0,
+  cuotasAbonadas: 0,
+  totalCuotas: 0
+};
 export default function MothSpentForm() {
-  const form = useForm();
+  const form = useForm<FormValues>({
+    resolver: standardSchemaResolver(formSchema),
+    defaultValues
+  });
 
   const { handleSubmit } = form;
-  function onSubmit(data: Record<string, unknown>) {
-    console.log('entra aqui');
-    console.log(data);
+  const tipo = useWatch({ control: form.control, name: 'tipo' });
+  function onSubmit(data: FormValues) {
+    console.log('Raw data: ', data);
+
+    const formData = parseForm(data);
+
+    console.log('parsed Data: ', formData);
   }
 
   return (
@@ -76,29 +112,34 @@ export default function MothSpentForm() {
 
         <FieldSeparator />
         {/* Prestamo y Tarjeta */}
-        <FieldGroup className='grid w-full items-baseline md:grid-cols-2'>
-          <InputController
-            form={form}
-            name='montoAbonado'
-            description='Monto abonado al momento de registrar el gasto.'
-            label='Monto abonado'
-            type='number'
-          />
+        {(tipo === 'Tarjeta' || tipo === 'Prestamo') && (
+          <FieldGroup className='grid w-full items-baseline md:grid-cols-2'>
+            <InputController
+              form={form}
+              name='montoAbonado'
+              description='Monto abonado al momento de registrar el gasto.'
+              label='Monto abonado'
+              type='number'
+            />
 
-          <InputController
-            form={form}
-            name='montoTotal'
-            description='Linea de Credito total.'
-            label='Monto total'
-            type='number'
-          />
+            <InputController
+              form={form}
+              name='montoTotal'
+              description='Linea de Credito total.'
+              label='Monto total'
+              type='number'
+            />
+          </FieldGroup>
+        )}
 
-          {/*  Prestamos */}
+        {/*  Prestamos */}
+        {tipo === 'Prestamo' && (
+          <FieldGroup className='grid w-full items-baseline md:grid-cols-2'>
+            <InputController form={form} name='cuotasAbonadas' label='Cuotas abonadas' type='number' />
 
-          <InputController form={form} name='cuotasAbonadas' label='Cuotas abonadas' type='number' />
-
-          <InputController form={form} name='totalCuotas' label='Total Cuotas' type='number' />
-        </FieldGroup>
+            <InputController form={form} name='totalCuotas' label='Total Cuotas' type='number' />
+          </FieldGroup>
+        )}
       </FieldSet>
       <Button type='submit' className='mt-5 w-full'>
         Guardar
@@ -107,6 +148,18 @@ export default function MothSpentForm() {
   );
 }
 
+function parseForm(data: FormValues) {
+  if (data.tipo === 'Fijo') {
+    data.montoAbonado = undefined;
+    data.montoTotal = undefined;
+    data.cuotasAbonadas = undefined;
+    data.totalCuotas = undefined;
+  } else if (data.tipo === 'Tarjeta') {
+    data.cuotasAbonadas = undefined;
+    data.totalCuotas = undefined;
+  }
+  return data;
+}
 function InputController({
   name,
   form,
@@ -114,8 +167,8 @@ function InputController({
   description,
   type = 'text'
 }: {
-  name: string;
-  form: ReturnType<typeof useForm>;
+  name: Path<FormValues>;
+  form: UseFormReturn<FormValues>;
   label: string;
   description?: string;
   type?: HTMLInputTypeAttribute;
@@ -128,7 +181,14 @@ function InputController({
         return (
           <Field data-invalid={fieldState.invalid}>
             <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
-            <Input id={field.name} {...field} aria-invalid={fieldState.invalid} autoComplete='off' type={type} />
+            <Input
+              id={field.name}
+              {...field}
+              value={field.value as string}
+              aria-invalid={fieldState.invalid}
+              autoComplete='off'
+              type={type}
+            />
             {description && <FieldDescription>{description}</FieldDescription>}
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
           </Field>
@@ -145,8 +205,8 @@ function SelectController({
   placeholder,
   items
 }: {
-  form: ReturnType<typeof useForm>;
-  name: string;
+  form: UseFormReturn<FormValues>;
+  name: Path<FormValues>;
   label: string;
   items?: { id: number; name: string }[];
   placeholder?: string;
@@ -158,7 +218,7 @@ function SelectController({
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid}>
           <FieldLabel>{label}</FieldLabel>
-          <Select name={field.name} value={field.value} onValueChange={field.onChange}>
+          <Select name={field.name} value={field.value as string} onValueChange={field.onChange}>
             <SelectTrigger aria-invalid={fieldState.invalid}>
               <SelectValue placeholder={placeholder ?? 'Seleccione'} />
             </SelectTrigger>
@@ -179,7 +239,15 @@ function SelectController({
   );
 }
 
-function SwitchController({ form, name, label }: { form: ReturnType<typeof useForm>; name: string; label: string }) {
+function SwitchController({
+  form,
+  name,
+  label
+}: {
+  form: UseFormReturn<FormValues>;
+  name: Path<FormValues>;
+  label: string;
+}) {
   return (
     <Controller
       name={name}
@@ -193,7 +261,7 @@ function SwitchController({ form, name, label }: { form: ReturnType<typeof useFo
           <Switch
             id={field.name}
             name={field.name}
-            checked={field.value}
+            checked={field.value as boolean}
             onCheckedChange={field.onChange}
             aria-invalid={fieldState.invalid}
           />
