@@ -16,10 +16,16 @@ import { DollarSignIcon, Home, WalletIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+interface RouteChild {
+  name: string;
+  url: string;
+}
+
 interface Route {
   name: string;
   url: string;
   icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  children?: RouteChild[];
 }
 
 const routes: Route[] = [
@@ -31,7 +37,11 @@ const routes: Route[] = [
   {
     name: 'Gastos',
     url: '/gasto',
-    icon: DollarSignIcon
+    icon: DollarSignIcon,
+    children: [
+      { name: 'Nuevo gasto', url: '/gasto/create' },
+      { name: 'Detalle', url: '/gasto/:id' }
+    ]
   }
 ];
 
