@@ -4,16 +4,15 @@ import {
   FieldError,
   FieldLabel} from '@/components/ui/field';
 import { Switch } from '@/components/ui/switch';
-import { Controller, Path, UseFormReturn } from 'react-hook-form';
-import { FormValues } from '@/app/gasto/(form)/schema';
+import { Controller, FieldValues, Path, UseFormReturn } from 'react-hook-form';
 
-export default function SwitchController({
+export default function SwitchController<T extends FieldValues>({
   form,
   name,
   label
 }: {
-  form: UseFormReturn<FormValues>;
-  name: Path<FormValues>;
+  form: UseFormReturn<T>;
+  name: Path<T>;
   label: string;
 }) {
   return (

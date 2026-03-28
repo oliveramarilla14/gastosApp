@@ -3,19 +3,17 @@ import {
   FieldError,
   FieldLabel} from '@/components/ui/field';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Controller, Path, UseFormReturn } from 'react-hook-form';
-import { FormValues } from '@/app/gasto/(form)/schema';
+import { Controller, FieldValues, Path, UseFormReturn } from 'react-hook-form';
 
-
-export default function SelectController({
+export default function SelectController<T extends FieldValues>({
   form,
   name,
   label,
   placeholder,
   items
 }: {
-  form: UseFormReturn<FormValues>;
-  name: Path<FormValues>;
+  form: UseFormReturn<T>;
+  name: Path<T>;
   label: string;
   items?: { id: number; name: string }[];
   placeholder?: string;

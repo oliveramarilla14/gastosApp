@@ -12,7 +12,7 @@ import {
   SidebarMenuItem
 } from '@/components/ui/sidebar';
 import { version } from '../../../package.json';
-import { DollarSignIcon, Home, WalletIcon } from 'lucide-react';
+import { DollarSignIcon, Home, LayoutList, WalletIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -42,6 +42,11 @@ const routes: Route[] = [
       { name: 'Nuevo gasto', url: '/gasto/create' },
       { name: 'Detalle', url: '/gasto/:id' }
     ]
+  },
+  {
+    name: 'Categorías',
+    url: '/categorias',
+    icon: LayoutList
   }
 ];
 

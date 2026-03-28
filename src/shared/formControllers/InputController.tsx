@@ -5,18 +5,17 @@ import {
   FieldLabel} from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { HTMLInputTypeAttribute } from 'react';
-import { Controller, Path, UseFormReturn } from 'react-hook-form';
-import { FormValues } from '@/app/gasto/(form)/schema';
+import { Controller, FieldValues, Path, UseFormReturn } from 'react-hook-form';
 
-export default function InputController({
+export default function InputController<T extends FieldValues>({
   name,
   form,
   label,
   description,
   type = 'text'
 }: {
-  name: Path<FormValues>;
-  form: UseFormReturn<FormValues>;
+  name: Path<T>;
+  form: UseFormReturn<T>;
   label: string;
   description?: string;
   type?: HTMLInputTypeAttribute;
