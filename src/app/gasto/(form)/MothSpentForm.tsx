@@ -96,7 +96,7 @@ export default function MothSpentForm({ defaultValues, onSubmit, categorias }: P
             name='monto'
             description='Compromiso mensual asumido'
             label='Monto'
-            type='number'
+            currency
           />
 
           <InputController form={form} name='diaPago' label='Dia de Pago' type='number' />
@@ -112,7 +112,7 @@ export default function MothSpentForm({ defaultValues, onSubmit, categorias }: P
               name='montoAbonado'
               description='Monto abonado al momento de registrar el gasto.'
               label='Monto abonado'
-              type='number'
+              currency
             />
 
             <InputController
@@ -120,7 +120,7 @@ export default function MothSpentForm({ defaultValues, onSubmit, categorias }: P
               name='montoTotal'
               description='Linea de Credito total.'
               label='Monto total'
-              type='number'
+              currency
             />
           </FieldGroup>
         )}
