@@ -38,7 +38,8 @@ export async function createGasto(data: CreateGastoInput) {
       montoAbonado: data.montoAbonado ?? 0,
       montoTotal: data.montoTotal ?? 0,
       cuotasAbonadas: data.cuotasAbonadas ?? 0,
-      totalCuotas: data.totalCuotas ?? 0
+      totalCuotas: data.totalCuotas ?? 0,
+      fechaInicio: data.fechaInicio ? new Date(data.fechaInicio) : null
     }
   });
 }
@@ -56,7 +57,8 @@ export async function updateGasto(id: string, data: Omit<CreateGastoInput, 'idOw
       montoAbonado: data.montoAbonado ?? 0,
       montoTotal: data.montoTotal ?? 0,
       cuotasAbonadas: data.cuotasAbonadas ?? 0,
-      totalCuotas: data.totalCuotas ?? 0
+      totalCuotas: data.totalCuotas ?? 0,
+      fechaInicio: data.fechaInicio ? new Date(data.fechaInicio) : null
     }
   });
 }
@@ -79,5 +81,12 @@ export async function getPagosMesAnho(month: number, year: number) {
     orderBy: { createdAt: 'desc' },
   });
 
-  return gastos.map(mapGastoToDetalleMensual);
+  const filtered = gastos.filter(gasto => {
+    if (gasto.tipoGasto !== 'PRESTAMO' || !gasto.fechaInicio) return true;
+    const start = gasto.fechaInicio;
+    const cuota = (year - start.getFullYear()) * 12 + (month - start.getMonth()) + 1;
+    return cuota >= 1 && cuota <= gasto.totalCuotas;
+  });
+
+  return filtered.map(g => mapGastoToDetalleMensual(g, { month, year }));
 }

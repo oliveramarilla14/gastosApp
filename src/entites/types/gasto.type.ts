@@ -7,6 +7,7 @@ export interface GastoType {
   idCategoria: string;
   categoria: string;
   fechaFinalizacion: string | null;
+  fechaInicio: string | null;
   tipoGasto: TipoGasto;
   montoAbonado: number;
   montoDeuda: number; // compromiso mensual en todos los tipos
@@ -30,6 +31,7 @@ export interface CreateGastoInput {
   montoTotal?: number;
   cuotasAbonadas?: number;
   totalCuotas?: number;
+  fechaInicio?: string | null;
 }
 
 
@@ -44,4 +46,6 @@ export interface DetalleMensual {
   monto: number;
   tipo: TipoGasto;
   abonado: number;
+  cuotaActual?: number;
+  totalCuotas?: number;
 }

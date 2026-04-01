@@ -25,7 +25,8 @@ const emptyDefaults: FormValues = {
   montoAbonado: 0,
   montoTotal: 0,
   cuotasAbonadas: 0,
-  totalCuotas: 0
+  totalCuotas: 0,
+  fechaInicio: undefined
 };
 
 interface Props {
@@ -130,6 +131,8 @@ export default function MothSpentForm({ defaultValues, onSubmit, categorias }: P
             <InputController form={form} name='cuotasAbonadas' label='Cuotas abonadas' type='number' />
 
             <InputController form={form} name='totalCuotas' label='Total Cuotas' type='number' />
+
+            <InputController form={form} name='fechaInicio' label='Mes de inicio' type='month' />
           </FieldGroup>
         )}
       </FieldSet>
@@ -148,11 +151,13 @@ function parseFormData(data: FormValues): FormValues {
     response.montoTotal = undefined;
     response.cuotasAbonadas = undefined;
     response.totalCuotas = undefined;
+    response.fechaInicio = undefined;
   }
 
   if (data.tipo === 'Tarjeta') {
     response.cuotasAbonadas = undefined;
     response.totalCuotas = undefined;
+    response.fechaInicio = undefined;
   }
 
   return response;

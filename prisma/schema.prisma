@@ -36,6 +36,7 @@ model Gasto {
   montoTotal        Int            @default(0)
   cuotasAbonadas    Int            @default(0)
   totalCuotas       Int            @default(0)
+  fechaInicio       DateTime?
   diaPago           Int
   idOwner           String
   pagos             Pago[]

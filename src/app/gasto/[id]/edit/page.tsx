@@ -28,7 +28,8 @@ export default async function EditPage({ params }: { params: Promise<{ id: strin
     montoAbonado: gasto.montoAbonado,
     montoTotal: gasto.montoTotal,
     cuotasAbonadas: gasto.cuotasAbonadas ?? 0,
-    totalCuotas: gasto.totalCuotas ?? 0
+    totalCuotas: gasto.totalCuotas ?? 0,
+    fechaInicio: gasto.fechaInicio ? gasto.fechaInicio.slice(0, 7) : undefined
   };
 
   return (

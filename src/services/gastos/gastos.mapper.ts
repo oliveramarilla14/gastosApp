@@ -13,6 +13,7 @@ export function mapGastoToGastoType(gasto: GastoConCategoria): GastoType {
     idCategoria: gasto.idCategoria,
     categoria: gasto.categoria.nombre,
     fechaFinalizacion: gasto.fechaFinalizacion ? gasto.fechaFinalizacion.toISOString() : null,
+    fechaInicio: gasto.fechaInicio ? gasto.fechaInicio.toISOString() : null,
     tipoGasto: gasto.tipoGasto,
     montoAbonado: gasto.montoAbonado,
     montoDeuda: gasto.montoDeuda,
@@ -26,8 +27,16 @@ export function mapGastoToGastoType(gasto: GastoConCategoria): GastoType {
   return response;
 }
 
-export function mapGastoToDetalleMensual(gasto: GastoConPagos): DetalleMensual {
-  console.log('Gasto con pagos:', gasto.pagos.length);
+export function mapGastoToDetalleMensual(
+  gasto: GastoConPagos,
+  ctx?: { month: number; year: number }
+): DetalleMensual {
+  let cuotaActual: number | undefined;
+  if (gasto.tipoGasto === 'PRESTAMO' && gasto.fechaInicio && ctx) {
+    const start = gasto.fechaInicio;
+    cuotaActual = (ctx.year - start.getFullYear()) * 12 + (ctx.month - start.getMonth()) + 1;
+  }
+
   const response: DetalleMensual = {
     idGasto: gasto.idGasto,
     concepto: gasto.concepto,
@@ -39,6 +48,8 @@ export function mapGastoToDetalleMensual(gasto: GastoConPagos): DetalleMensual {
     icon: gasto.categoria.icon as IconName,
     tipo: gasto.tipoGasto,
     abonado: gasto.montoAbonado,
+    cuotaActual,
+    totalCuotas: gasto.totalCuotas || undefined,
   };
 
   return response;

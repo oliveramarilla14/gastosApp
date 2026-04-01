@@ -10,7 +10,8 @@ export const formSchema = z.object({
   montoAbonado: z.coerce.number<number>().min(0, 'Introduzca un monto válido').optional(),
   montoTotal: z.coerce.number<number>().min(0, 'Introduzca un monto válido').optional(),
   cuotasAbonadas: z.coerce.number<number>().min(0, 'Introduzca un número válido').optional(),
-  totalCuotas: z.coerce.number<number>().min(0, 'Introduzca un número válido').optional()
+  totalCuotas: z.coerce.number<number>().min(0, 'Introduzca un número válido').optional(),
+  fechaInicio: z.string().optional()
 });
 
 export type FormValues = z.infer<typeof formSchema>;

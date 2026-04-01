@@ -41,7 +41,9 @@ export function MonthTable({ gastos, mes, anho }: { gastos: DetalleMensual[]; me
                 <TableCell align='center'>
                   {gasto.tipo === 'FIJO'
                     ? 'Fijo'
-                    : `${formatNumber.format(gasto.abonado)} / ${formatNumber.format(gasto.totalDeuda)}`}
+                    : gasto.tipo === 'PRESTAMO' && gasto.cuotaActual != null
+                      ? `${gasto.cuotaActual}/${gasto.totalCuotas}`
+                      : `${formatNumber.format(gasto.abonado)} / ${formatNumber.format(gasto.totalDeuda)}`}
                 </TableCell>
                 <TableCell align='left'>{formatoMoneda.format(gasto.monto)}</TableCell>
                 <TableCell>
