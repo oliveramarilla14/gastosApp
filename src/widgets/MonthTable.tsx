@@ -4,11 +4,11 @@ import { cn } from '@/lib/utils';
 import { mapIcon } from '@/lib/icons';
 import { formatNumber, formatoMoneda } from '@/lib/numbers';
 import { DetalleMensual } from '@/entites/types/gasto.type';
-import { Button } from '@/components/ui/button';
+import { PagarModal } from '@/widgets/PagarModal';
 
 const ingresoMensual = 10000000;
 const TOTAL_COLUMNS = 5;
-export function MonthTable({ gastos }: { gastos: DetalleMensual[] }) {
+export function MonthTable({ gastos, mes, anho }: { gastos: DetalleMensual[]; mes: number; anho: number }) {
   const totalGastos = gastos.reduce((acc, gasto) => acc + gasto.monto, 0);
   const restante = ingresoMensual - totalGastos;
   return (
@@ -41,13 +41,11 @@ export function MonthTable({ gastos }: { gastos: DetalleMensual[] }) {
                 <TableCell align='center'>
                   {gasto.tipo === 'FIJO'
                     ? 'Fijo'
-                    : `${formatNumber.format(gasto.pagoMes)} / ${formatNumber.format(gasto.totalDeuda)}`}
+                    : `${formatNumber.format(gasto.abonado)} / ${formatNumber.format(gasto.totalDeuda)}`}
                 </TableCell>
                 <TableCell align='left'>{formatoMoneda.format(gasto.monto)}</TableCell>
                 <TableCell>
-                  <Button variant='outline' size='sm'>
-                    {gasto.pagado ? 'Ver Pago' : 'Pagar'}
-                  </Button>
+                  <PagarModal gasto={gasto} mes={mes} anho={anho} />
                 </TableCell>
               </TableRow>
             );

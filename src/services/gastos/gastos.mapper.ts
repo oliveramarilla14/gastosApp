@@ -37,7 +37,8 @@ export function mapGastoToDetalleMensual(gasto: GastoConPagos): DetalleMensual {
     pagado: gasto.pagos.length > 0,
     monto: gasto.montoDeuda,
     icon: gasto.categoria.icon as IconName,
-    tipo: gasto.tipoGasto
+    tipo: gasto.tipoGasto,
+    abonado: gasto.montoAbonado,
   };
 
   return response;

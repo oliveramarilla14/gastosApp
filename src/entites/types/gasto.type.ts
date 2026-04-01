@@ -43,4 +43,5 @@ export interface DetalleMensual {
   pagado: boolean;
   monto: number;
   tipo: TipoGasto;
+  abonado: number;
 }

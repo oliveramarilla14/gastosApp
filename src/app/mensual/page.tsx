@@ -17,7 +17,7 @@ export default async function page({
     <main>
       <h1 className='text-2xl font-bold'>Mensual</h1>
       <MonthSelector mes={mes} anho={anho} />
-      <MonthTable gastos={gastos} />
+      <MonthTable gastos={gastos} mes={mes} anho={anho} />
     </main>
   );
 }
