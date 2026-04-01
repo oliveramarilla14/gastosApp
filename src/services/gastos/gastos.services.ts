@@ -1,7 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { CreateGastoInput } from '@/entites/types/gasto.type';
 import { mapGastoToDetalleMensual, mapGastoToGastoType } from './gastos.mapper';
-import { MONTH, MONTH_INDEX } from '@/entites/enums/month.enum';
 
 export async function getGastos() {
   const gasto = await prisma.gasto.findMany({
@@ -63,10 +62,9 @@ export async function updateGasto(id: string, data: Omit<CreateGastoInput, 'idOw
 }
 
 
-export async function getPagosMesAnho(mes: MONTH, year: number) {
-  const monthIndex = MONTH_INDEX[mes];
-  const desde = new Date(year, monthIndex, 1);
-  const hasta = new Date(year, monthIndex + 1, 1);
+export async function getPagosMesAnho(month: number, year: number) {
+  const desde = new Date(year, month, 1);
+  const hasta = new Date(year, month + 1, 1);
 
   const gastos = await prisma.gasto.findMany({
     where: { finalizado: false },
