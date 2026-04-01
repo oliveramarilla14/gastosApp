@@ -1,4 +1,5 @@
 import { GastoType } from '@/entites/types/gasto.type';
+import { IconName } from '@/lib/icons';
 import { CategoriaGasto, Gasto } from '../../../generated/prisma/client';
 
 type GastoConCategoria = Gasto & { categoria: CategoriaGasto };
@@ -8,6 +9,7 @@ export function mapGastoToGastoType(gasto: GastoConCategoria): GastoType {
     idGasto: gasto.idGasto,
     concepto: gasto.concepto,
     finalizado: gasto.finalizado,
+    idCategoria: gasto.idCategoria,
     categoria: gasto.categoria.nombre,
     fechaFinalizacion: gasto.fechaFinalizacion ? gasto.fechaFinalizacion.toISOString() : null,
     tipoGasto: gasto.tipoGasto,
@@ -16,7 +18,8 @@ export function mapGastoToGastoType(gasto: GastoConCategoria): GastoType {
     montoTotal: gasto.montoTotal,
     cuotasAbonadas: gasto.cuotasAbonadas,
     totalCuotas: gasto.totalCuotas,
-    icon: "home"
+    diaPago: gasto.diaPago,
+    icon: gasto.categoria.icon as IconName
   };
 
   return response;

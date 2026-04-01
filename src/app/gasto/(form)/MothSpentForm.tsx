@@ -9,24 +9,16 @@ import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { useForm, useWatch } from 'react-hook-form';
 import { formSchema, FormValues } from './schema';
 
-const categorias = [
-  { id: 1, name: 'Alquiler' },
-  { id: 2, name: 'Servicios' },
-  { id: 3, name: 'Comida' },
-  { id: 4, name: 'Transporte' },
-  { id: 5, name: 'Salud' }
-];
-
 const tipoGasto = [
-  { id: 1, name: 'Fijo' },
-  { id: 2, name: 'Tarjeta' },
-  { id: 3, name: 'Prestamo' }
+  { id: 'Fijo', name: 'Fijo' },
+  { id: 'Tarjeta', name: 'Tarjeta' },
+  { id: 'Prestamo', name: 'Préstamo' }
 ];
 
-const defaultValues: FormValues = {
+const emptyDefaults: FormValues = {
   finalizado: false,
   concepto: '',
-  categoria: 'Alquiler',
+  categoria: '',
   monto: 0,
   diaPago: 1,
   tipo: 'Fijo',
@@ -35,19 +27,23 @@ const defaultValues: FormValues = {
   cuotasAbonadas: 0,
   totalCuotas: 0
 };
-export default function MothSpentForm() {
+
+interface Props {
+  defaultValues?: Partial<FormValues>;
+  onSubmit: (data: FormValues) => Promise<unknown>;
+  categorias: { id: string; name: string }[];
+}
+
+export default function MothSpentForm({ defaultValues, onSubmit, categorias }: Props) {
   const form = useForm<FormValues>({
     resolver: standardSchemaResolver(formSchema),
-    defaultValues
+    defaultValues: { ...emptyDefaults, ...defaultValues }
   });
 
-  const {
-    handleSubmit,
-    formState: { errors },
-    setError
-  } = form;
+  const { handleSubmit, setError } = form;
   const tipo = useWatch({ control: form.control, name: 'tipo' });
-  function onSubmit(data: FormValues) {
+
+  async function handleFormSubmit(data: FormValues) {
     let hasErrors = false;
 
     if (data.tipo === 'Tarjeta' || data.tipo === 'Prestamo') {
@@ -65,24 +61,16 @@ export default function MothSpentForm() {
 
     if (hasErrors) return;
 
-    const parsedData = parseFormData(data);
-    console.log('Parsed data: ', parsedData);
+    try {
+      await onSubmit(parseFormData(data));
+    } catch (e) {
+      if ((e as { digest?: string })?.digest?.startsWith('NEXT_REDIRECT')) return;
+      throw e;
+    }
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      {/* {Object.keys(errors).length > 0 && (
-        <div>
-          <h2>Errors</h2>
-          <ul>
-            {Object.entries(errors).map(([field, error]) => (
-              <li key={field}>
-                <strong>{field}:</strong> {error?.message as string}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )} */}
+    <form onSubmit={handleSubmit(handleFormSubmit)}>
       <FieldSet>
         <FieldGroup className='grid w-full md:grid-cols-2'>
           <FieldTitle className='text-xl font-bold'>Nuevo Gasto</FieldTitle>
@@ -152,10 +140,8 @@ export default function MothSpentForm() {
   );
 }
 
-function parseFormData(data: FormValues) {
-  const response: FormValues = {
-    ...data
-  };
+function parseFormData(data: FormValues): FormValues {
+  const response: FormValues = { ...data };
 
   if (data.tipo === 'Fijo') {
     response.montoAbonado = undefined;

@@ -3,9 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress, ProgressLabel, ProgressValue } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import type { GastoType, TipoGasto } from '@/entites/types/gasto.type';
 import type { IconName } from '@/lib/icons';
 import { formatoMoneda } from '@/lib/numbers';
 import { cn } from '@/lib/utils';
+import { getGastoById } from '@/services/gastos/gastos.services';
 import {
   ArrowLeft,
   CalendarDays,
@@ -32,25 +34,9 @@ const iconElements: Record<IconName, React.ReactElement<{ size?: number }>> = {
   'shopping-cart': <ShoppingCart />,
   creditCard: <CreditCard />,
   dollar: <CircleDollarSign />,
-  piggy: <PiggyBank />
+  piggy: <PiggyBank />,
+  'help-circle': <HelpCircle />
 };
-
-type TipoGasto = 'TARJETA' | 'PRESTAMO' | 'FIJO';
-
-interface Gasto {
-  idGasto: number;
-  concepto: string;
-  finalizado: boolean;
-  categoria: string;
-  fechaFinalizacion: string | null;
-  tipoGasto: TipoGasto;
-  montoAbonado: number;
-  montoDeuda: number;
-  montoTotal: number;
-  cuotasAbonadas: number | null;
-  totalCuotas: number | null;
-  icon: IconName;
-}
 
 interface PagoHistorico {
   id: number;
@@ -60,82 +46,14 @@ interface PagoHistorico {
   estado: 'pagado' | 'pendiente';
 }
 
-const gastos: Gasto[] = [
-  {
-    idGasto: 1,
-    tipoGasto: 'TARJETA',
-    concepto: 'AMEX Itau',
-    icon: 'creditCard',
-    categoria: 'Tarjeta de crédito',
-    montoAbonado: 1000000,
-    montoDeuda: 200000,
-    montoTotal: 7000000,
-    cuotasAbonadas: null,
-    totalCuotas: null,
-    finalizado: false,
-    fechaFinalizacion: null
-  },
-  {
-    idGasto: 2,
-    tipoGasto: 'PRESTAMO',
-    concepto: 'basa',
-    categoria: 'Prestamo',
-    icon: 'dollar',
-    montoAbonado: 200000,
-    montoDeuda: 100000,
-    montoTotal: 5000000,
-    cuotasAbonadas: 2,
-    totalCuotas: 48,
-    finalizado: false,
-    fechaFinalizacion: '2025-12-31'
-  },
-  {
-    idGasto: 3,
-    tipoGasto: 'FIJO',
-    concepto: 'Alquiler',
-    categoria: 'Hogar',
-    icon: 'home',
-    montoAbonado: 0,
-    montoDeuda: 300_000,
-    montoTotal: 0,
-    cuotasAbonadas: null,
-    totalCuotas: null,
-    finalizado: false,
-    fechaFinalizacion: null
-  }
-];
-
-const historicoPorGasto: Record<number, PagoHistorico[]> = {
-  1: [
-    { id: 1, fecha: '2026-03-05', monto: 200000, estado: 'pagado' },
-    { id: 2, fecha: '2026-02-05', monto: 200000, estado: 'pagado' },
-    { id: 3, fecha: '2026-01-05', monto: 200000, estado: 'pagado' },
-    { id: 4, fecha: '2025-12-05', monto: 200000, estado: 'pagado' },
-    { id: 5, fecha: '2025-11-05', monto: 200000, estado: 'pagado' },
-    { id: 6, fecha: '2026-04-05', monto: 200000, estado: 'pendiente' }
-  ],
-  2: [
-    { id: 1, fecha: '2026-03-10', monto: 100000, cuota: 2, estado: 'pagado' },
-    { id: 2, fecha: '2026-02-10', monto: 100000, cuota: 1, estado: 'pagado' },
-    { id: 3, fecha: '2026-04-10', monto: 100000, cuota: 3, estado: 'pendiente' }
-  ],
-  3: [
-    { id: 1, fecha: '2026-03-01', monto: 300000, estado: 'pagado' },
-    { id: 2, fecha: '2026-02-01', monto: 300000, estado: 'pagado' },
-    { id: 3, fecha: '2026-01-01', monto: 300000, estado: 'pagado' },
-    { id: 4, fecha: '2025-12-01', monto: 300000, estado: 'pagado' },
-    { id: 5, fecha: '2026-04-01', monto: 300000, estado: 'pendiente' }
-  ]
-};
-
-function getProgress(gasto: Gasto): number {
+function getProgress(gasto: GastoType): number {
   if (gasto.tipoGasto === 'PRESTAMO' && gasto.cuotasAbonadas != null && gasto.totalCuotas)
     return (gasto.cuotasAbonadas / gasto.totalCuotas) * 100;
   if (gasto.tipoGasto === 'TARJETA' && gasto.montoTotal > 0) return (gasto.montoAbonado / gasto.montoTotal) * 100;
   return 100;
 }
 
-function getProgressLabel(gasto: Gasto): string {
+function getProgressLabel(gasto: GastoType): string {
   if (gasto.tipoGasto === 'PRESTAMO') return `${gasto.cuotasAbonadas ?? 0}/${gasto.totalCuotas ?? 0} cuotas`;
   if (gasto.tipoGasto === 'TARJETA')
     return `${formatoMoneda.format(gasto.montoAbonado)} / ${formatoMoneda.format(gasto.montoTotal)}`;
@@ -156,12 +74,12 @@ const tipoLabel: Record<TipoGasto, string> = {
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const gasto = gastos.find((g) => g.idGasto === Number(id));
+  const gasto = await getGastoById(id);
 
   if (!gasto) notFound();
 
   const progress = getProgress(gasto);
-  const historial = historicoPorGasto[gasto.idGasto] ?? [];
+  const historial: PagoHistorico[] = [];
   const pagados = historial.filter((p) => p.estado === 'pagado');
   const pendientes = historial.filter((p) => p.estado === 'pendiente');
 

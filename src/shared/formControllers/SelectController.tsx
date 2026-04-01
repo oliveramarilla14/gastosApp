@@ -15,7 +15,7 @@ export default function SelectController<T extends FieldValues>({
   form: UseFormReturn<T>;
   name: Path<T>;
   label: string;
-  items?: { id: number; name: string }[];
+  items?: { id: string | number; name: string }[];
   placeholder?: string;
 }) {
   return (
@@ -32,7 +32,7 @@ export default function SelectController<T extends FieldValues>({
             <SelectContent position='item-aligned'>
               <SelectGroup>
                 {items?.map((item) => (
-                  <SelectItem key={item.id} value={item.name}>
+                  <SelectItem key={item.id} value={String(item.id)}>
                     {item.name}
                   </SelectItem>
                 ))}

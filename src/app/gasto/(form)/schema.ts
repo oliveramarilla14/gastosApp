@@ -3,7 +3,7 @@ import * as z from 'zod';
 export const formSchema = z.object({
   finalizado: z.boolean(),
   concepto: z.string().min(1, 'El concepto es requerido'),
-  categoria: z.enum(['Alquiler', 'Servicios', 'Comida', 'Transporte', 'Salud'], 'Categoria es requerida'),
+  categoria: z.string().min(1, 'Categoria es requerida'),
   monto: z.coerce.number<number>().min(1, 'Introduzca un monto válido'),
   diaPago: z.coerce.number<number>().min(1, 'El día de pago es requerido').max(31, 'El día de pago debe estar entre 1 y 31'),
   tipo: z.enum(['Fijo', 'Tarjeta', 'Prestamo'], 'Tipo es requerido'),

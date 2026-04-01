@@ -89,8 +89,8 @@ export default async function Gasto() {
                 <Button asChild variant='default' className='w-full'>
                   <Link href={`/gasto/${gasto.idGasto}`}>Ver</Link>
                 </Button>
-                <Button variant='outline' className='w-full' disabled={gasto.finalizado}>
-                  Editar
+                <Button asChild variant='outline' className='w-full' disabled={gasto.finalizado}>
+                  <Link href={`/gasto/${gasto.idGasto}/edit`}>Editar</Link>
                 </Button>
               </CardFooter>
             </Card>
