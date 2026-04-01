@@ -42,9 +42,13 @@ export function PagarModal({ gasto, mes, anho }: Props) {
 
   return (
     <>
-      <Button variant='outline' size='sm' onClick={() => setOpen(true)}>
-        {gasto.pagado ? 'Ver Pago' : 'Pagar'}
-      </Button>
+      {gasto.pagado ? (
+        'Pagado'
+      ) : (
+        <Button variant='outline' size='sm' onClick={() => setOpen(true)}>
+          Pagar
+        </Button>
+      )}
 
       {open && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50' onClick={() => setOpen(false)}>
