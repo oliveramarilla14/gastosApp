@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getCategoriaById } from '@/services/categorias/categorias.services';

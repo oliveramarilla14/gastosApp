@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { getPagosMesAnho } from '@/services/gastos/gastos.services';
 import { MonthSelector } from '@/widgets/MonthSelector';
 import { MonthTable } from '@/widgets/MonthTable';
