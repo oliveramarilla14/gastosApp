@@ -20,8 +20,11 @@ function getBreadcrumbs(pathname: string): BreadcrumbSegment[] {
   if (pathname === '/gasto/create') return [{ name: 'Gastos', url: '/gasto' }, { name: 'Nuevo gasto' }];
   if (/^\/gasto\/[^/]+/.test(pathname)) return [{ name: 'Gastos', url: '/gasto' }, { name: 'Detalle' }];
   if (pathname === '/categorias') return [{ name: 'Categorías' }];
-  if (pathname === '/categorias/create') return [{ name: 'Categorías', url: '/categorias' }, { name: 'Nueva categoría' }];
-  if (/^\/categorias\/[^/]+/.test(pathname)) return [{ name: 'Categorías', url: '/categorias' }, { name: 'Editar categoría' }];
+  if (pathname === '/categorias/create')
+    return [{ name: 'Categorías', url: '/categorias' }, { name: 'Nueva categoría' }];
+  if (/^\/categorias\/[^/]+/.test(pathname))
+    return [{ name: 'Categorías', url: '/categorias' }, { name: 'Editar categoría' }];
+  if (pathname === '/mensual') return [{ name: 'Mensual', url: '/mensual' }];
   return [];
 }
 

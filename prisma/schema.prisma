@@ -24,20 +24,33 @@ model CategoriaGasto {
 }
 
 model Gasto {
-  idGasto          String         @id @default(cuid())
-  concepto         String
-  idCategoria      String
-  categoria        CategoriaGasto @relation(fields: [idCategoria], references: [idCategoria])
-  finalizado       Boolean   @default(false)
+  idGasto           String         @id @default(cuid())
+  concepto          String
+  idCategoria       String
+  categoria         CategoriaGasto @relation(fields: [idCategoria], references: [idCategoria])
+  finalizado        Boolean        @default(false)
   fechaFinalizacion DateTime?
-  tipoGasto        TipoGasto
-  montoDeuda       Int
-  montoAbonado     Int       @default(0)
-  montoTotal       Int       @default(0)
-  cuotasAbonadas   Int       @default(0)
-  totalCuotas      Int       @default(0)
-  diaPago          Int
-  idOwner          String
+  tipoGasto         TipoGasto
+  montoDeuda        Int
+  montoAbonado      Int            @default(0)
+  montoTotal        Int            @default(0)
+  cuotasAbonadas    Int            @default(0)
+  totalCuotas       Int            @default(0)
+  diaPago           Int
+  idOwner           String
+  pagos             Pago[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Pago {
+  idPago      String   @id @default(cuid())
+  idGasto     String?
+  gasto       Gasto?   @relation(fields: [idGasto], references: [idGasto])
+  descripcion String
+  monto       Int
+  fechaPago   DateTime
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
