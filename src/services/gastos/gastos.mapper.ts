@@ -48,6 +48,7 @@ export function mapGastoToDetalleMensual(
     icon: gasto.categoria.icon as IconName,
     tipo: gasto.tipoGasto,
     abonado: gasto.montoAbonado,
+    diaPago: gasto.diaPago,
     cuotaActual,
     totalCuotas: gasto.totalCuotas || undefined,
   };

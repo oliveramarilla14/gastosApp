@@ -46,6 +46,7 @@ export interface DetalleMensual {
   monto: number;
   tipo: TipoGasto;
   abonado: number;
+  diaPago: number;
   cuotaActual?: number;
   totalCuotas?: number;
 }
