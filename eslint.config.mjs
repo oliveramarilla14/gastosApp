@@ -13,6 +13,16 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      "no-restricted-imports": ["warn", {
+        paths: [{
+          name: "@/lib/development",
+          message: "Remove development utilities before committing.",
+        }],
+      }],
+    },
+  },
 ]);
 
 export default eslintConfig;

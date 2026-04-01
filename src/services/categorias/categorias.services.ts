@@ -11,7 +11,6 @@ export async function getCategorias() {
 }
 
 export async function getCategoriaById(id: string) {
-  await new Promise(resolve => setTimeout(resolve, 2000));
 
   const row = await prisma.categoriaGasto.findUnique({
     where: { idCategoria: id }
