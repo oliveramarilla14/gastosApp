@@ -34,8 +34,8 @@ function getProgressLabel(gasto: GastoType): string {
 
 export default async function Gasto() {
   const gastos = await getGastos();
-  console.log("gastos",gastos)
-  
+  console.log('gastos', gastos);
+
   return (
     <main>
       <div className='flex justify-between'>
@@ -72,7 +72,12 @@ export default async function Gasto() {
                 </Progress>
                 {gasto.fechaFinalizacion ? (
                   <p className='flex gap-2 items-center text-sm text-muted-foreground mt-2'>
-                    <CalendarX size={14} /> {gasto.fechaFinalizacion}
+                    <CalendarX size={14} />{' '}
+                    {new Date(gasto.fechaFinalizacion).toLocaleDateString('es-PY', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric'
+                    })}
                   </p>
                 ) : (
                   <p className='flex gap-2 items-center text-sm text-muted-foreground mt-2'>
