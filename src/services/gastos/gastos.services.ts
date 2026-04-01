@@ -23,6 +23,18 @@ export async function getGastoById(id: string) {
   return mapGastoToGastoType(row);
 }
 
+export async function getGastoConPagos(id: string) {
+  const row = await prisma.gasto.findUnique({
+    where: { idGasto: id },
+    include: {
+      categoria: true,
+      pagos: { orderBy: { fechaPago: 'desc' } },
+    },
+  });
+  if (!row) return null;
+  return { gasto: mapGastoToGastoType(row), pagos: row.pagos };
+}
+
 const tipoMap = { Fijo: 'FIJO', Tarjeta: 'TARJETA', Prestamo: 'PRESTAMO' } as const;
 
 export async function createGasto(data: CreateGastoInput) {

@@ -7,21 +7,22 @@ import type { GastoType, TipoGasto } from '@/entites/types/gasto.type';
 import type { IconName } from '@/lib/icons';
 import { formatoMoneda } from '@/lib/numbers';
 import { cn } from '@/lib/utils';
-import { getGastoById } from '@/services/gastos/gastos.services';
+import { getGastoConPagos } from '@/services/gastos/gastos.services';
 import {
   ArrowLeft,
+  Calendar,
   CalendarDays,
   CalendarX,
   Car,
-  CheckCircle2,
   CircleDollarSign,
-  Clock,
   CreditCard,
+  Hash,
   HelpCircle,
   Home,
   Lightbulb,
   PiggyBank,
-  ShoppingCart
+  ShoppingCart,
+  Wallet
 } from 'lucide-react';
 import Link from 'next/link';
 import { cloneElement } from 'react';
@@ -39,11 +40,15 @@ const iconElements: Record<IconName, React.ReactElement<{ size?: number }>> = {
 };
 
 interface PagoHistorico {
-  id: number;
-  fecha: string;
+  id: string;
+  fecha: Date;
   monto: number;
+  descripcion: string;
   cuota?: number;
-  estado: 'pagado' | 'pendiente';
+}
+
+function calcularCuota(inicio: Date, fechaPago: Date): number {
+  return (fechaPago.getFullYear() - inicio.getFullYear()) * 12 + (fechaPago.getMonth() - inicio.getMonth()) + 1;
 }
 
 function getProgress(gasto: GastoType): number {
@@ -74,14 +79,25 @@ const tipoLabel: Record<TipoGasto, string> = {
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const gasto = await getGastoById(id);
+  const result = await getGastoConPagos(id);
 
-  if (!gasto) notFound();
+  if (!result) notFound();
 
+  const { gasto, pagos } = result;
   const progress = getProgress(gasto);
-  const historial: PagoHistorico[] = [];
-  const pagados = historial.filter((p) => p.estado === 'pagado');
-  const pendientes = historial.filter((p) => p.estado === 'pendiente');
+
+  const historial: PagoHistorico[] = pagos.map((p) => ({
+    id: p.idPago,
+    fecha: p.fechaPago,
+    monto: p.monto,
+    descripcion: p.descripcion,
+    cuota:
+      gasto.tipoGasto === 'PRESTAMO' && gasto.fechaInicio
+        ? calcularCuota(new Date(gasto.fechaInicio), p.fechaPago)
+        : undefined,
+  }));
+
+  const totalPagado = historial.reduce((acc, p) => acc + p.monto, 0);
 
   return (
     <main className='max-w-2xl mx-auto'>
@@ -158,23 +174,11 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
               <CardDescription className='text-xs'>Pagos realizados</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className='text-xl font-bold'>{pagados.length}</p>
-              <p className='text-xs text-muted-foreground mt-0.5'>
-                {formatoMoneda.format(pagados.length * gasto.montoDeuda)} total
-              </p>
+              <p className='text-xl font-bold'>{historial.length}</p>
+              <p className='text-xs text-muted-foreground mt-0.5'>{formatoMoneda.format(totalPagado)} total</p>
             </CardContent>
           </Card>
         )}
-
-        <Card>
-          <CardHeader className='pb-1'>
-            <CardDescription className='text-xs'>Vencimiento</CardDescription>
-          </CardHeader>
-          <CardContent className='flex items-center gap-2'>
-            <CalendarX size={16} className='text-muted-foreground shrink-0' />
-            <p className='text-sm font-medium'>{gasto.fechaFinalizacion ?? 'Sin fecha'}</p>
-          </CardContent>
-        </Card>
 
         <Card className='col-span-2'>
           <CardHeader className='pb-2'>
@@ -189,6 +193,79 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         </Card>
       </div>
 
+      {/* Details */}
+      <Card className='mb-6'>
+        <CardHeader className='pb-2'>
+          <CardTitle className='text-base'>Información del gasto</CardTitle>
+        </CardHeader>
+        <CardContent className='divide-y divide-border'>
+          {gasto.fechaInicio && (
+            <div className='flex items-center justify-between py-2.5'>
+              <span className='flex items-center gap-2 text-sm text-muted-foreground'>
+                <Calendar size={14} /> Fecha de inicio
+              </span>
+              <span className='text-sm font-medium'>
+                {new Date(gasto.fechaInicio).toLocaleDateString('es-PY')}
+              </span>
+            </div>
+          )}
+          {gasto.fechaFinalizacion && (
+            <div className='flex items-center justify-between py-2.5'>
+              <span className='flex items-center gap-2 text-sm text-muted-foreground'>
+                <CalendarX size={14} /> Fecha de vencimiento
+              </span>
+              <span className='text-sm font-medium'>
+                {new Date(gasto.fechaFinalizacion).toLocaleDateString('es-PY')}
+              </span>
+            </div>
+          )}
+          <div className='flex items-center justify-between py-2.5'>
+            <span className='flex items-center gap-2 text-sm text-muted-foreground'>
+              <Hash size={14} /> Día de pago
+            </span>
+            <span className='text-sm font-medium'>Día {gasto.diaPago} de cada mes</span>
+          </div>
+          {gasto.tipoGasto === 'PRESTAMO' && (
+            <>
+              <div className='flex items-center justify-between py-2.5'>
+                <span className='flex items-center gap-2 text-sm text-muted-foreground'>
+                  <CalendarDays size={14} /> Cuotas restantes
+                </span>
+                <span className='text-sm font-medium'>
+                  {(gasto.totalCuotas ?? 0) - (gasto.cuotasAbonadas ?? 0)} de {gasto.totalCuotas ?? 0}
+                </span>
+              </div>
+              <div className='flex items-center justify-between py-2.5'>
+                <span className='flex items-center gap-2 text-sm text-muted-foreground'>
+                  <Wallet size={14} /> Monto pendiente
+                </span>
+                <span className='text-sm font-medium'>
+                  {formatoMoneda.format(gasto.montoTotal - gasto.montoAbonado)}
+                </span>
+              </div>
+            </>
+          )}
+          {gasto.tipoGasto === 'TARJETA' && (
+            <div className='flex items-center justify-between py-2.5'>
+              <span className='flex items-center gap-2 text-sm text-muted-foreground'>
+                <Wallet size={14} /> Monto pendiente
+              </span>
+              <span className='text-sm font-medium'>
+                {formatoMoneda.format(gasto.montoTotal - gasto.montoAbonado)}
+              </span>
+            </div>
+          )}
+          {gasto.tipoGasto === 'FIJO' && (
+            <div className='flex items-center justify-between py-2.5'>
+              <span className='flex items-center gap-2 text-sm text-muted-foreground'>
+                <Wallet size={14} /> Total abonado
+              </span>
+              <span className='text-sm font-medium'>{formatoMoneda.format(totalPagado)}</span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Payment history */}
       <Card>
         <CardHeader>
@@ -197,8 +274,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             Historial de pagos
           </CardTitle>
           <CardDescription>
-            {pagados.length} pagado{pagados.length !== 1 ? 's' : ''} · {pendientes.length} pendiente
-            {pendientes.length !== 1 ? 's' : ''}
+            {historial.length} pago{historial.length !== 1 ? 's' : ''} registrado{historial.length !== 1 ? 's' : ''}
           </CardDescription>
         </CardHeader>
         <CardContent className='p-0'>
@@ -210,36 +286,25 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 <TableRow>
                   <TableHead>Fecha</TableHead>
                   {gasto.tipoGasto === 'PRESTAMO' && <TableHead>Cuota</TableHead>}
-                  <TableHead>Monto</TableHead>
-                  <TableHead className='text-right'>Estado</TableHead>
+                  <TableHead>Descripción</TableHead>
+                  <TableHead className='text-right'>Monto</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {historial
-                  .slice()
-                  .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
-                  .map((pago) => (
-                    <TableRow key={pago.id}>
-                      <TableCell className='text-muted-foreground'>{pago.fecha}</TableCell>
-                      {gasto.tipoGasto === 'PRESTAMO' && (
-                        <TableCell className='text-muted-foreground'>
-                          {pago.cuota != null ? `#${pago.cuota}` : '—'}
-                        </TableCell>
-                      )}
-                      <TableCell className='font-medium'>{formatoMoneda.format(pago.monto)}</TableCell>
-                      <TableCell className='text-right'>
-                        {pago.estado === 'pagado' ? (
-                          <span className='inline-flex items-center gap-1 text-green-400 text-xs'>
-                            <CheckCircle2 size={13} /> Pagado
-                          </span>
-                        ) : (
-                          <span className='inline-flex items-center gap-1 text-yellow-400 text-xs'>
-                            <Clock size={13} /> Pendiente
-                          </span>
-                        )}
+                {historial.map((pago) => (
+                  <TableRow key={pago.id}>
+                    <TableCell className='text-muted-foreground whitespace-nowrap'>
+                      {pago.fecha.toLocaleDateString('es-PY')}
+                    </TableCell>
+                    {gasto.tipoGasto === 'PRESTAMO' && (
+                      <TableCell className='text-muted-foreground'>
+                        {pago.cuota != null ? `#${pago.cuota}` : '—'}
                       </TableCell>
-                    </TableRow>
-                  ))}
+                    )}
+                    <TableCell className='text-muted-foreground'>{pago.descripcion}</TableCell>
+                    <TableCell className='text-right font-medium'>{formatoMoneda.format(pago.monto)}</TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           )}
