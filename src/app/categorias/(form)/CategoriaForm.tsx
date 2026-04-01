@@ -6,7 +6,7 @@ import InputController from '@/shared/formControllers/InputController';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { useForm } from 'react-hook-form';
 import { formSchema, FormValues } from './schema';
-import IconPickerController from './IconPickerController';
+import IconPickerController from '../../../shared/formControllers/IconPickerController';
 
 const emptyDefaults: FormValues = { nombre: '', icon: 'help-circle' };
 
