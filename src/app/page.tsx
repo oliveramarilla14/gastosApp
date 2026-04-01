@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { getGastosParaDashboard } from '@/services/gastos/gastos.services';
 import { GastosDashboardChart } from '@/components/GastosDashboardChart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
