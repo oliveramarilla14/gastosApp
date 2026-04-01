@@ -35,6 +35,16 @@ export interface CreateGastoInput {
 }
 
 
+export interface MonthData {
+  mes: string;
+  [catName: string]: number | string;
+}
+
+export interface DashboardData {
+  data: MonthData[];
+  categories: string[];
+}
+
 export interface DetalleMensual {
   idGasto: string;
   concepto: string;

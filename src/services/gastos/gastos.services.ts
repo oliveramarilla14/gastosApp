@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { CreateGastoInput } from '@/entites/types/gasto.type';
+import { CreateGastoInput, DashboardData, MonthData } from '@/entites/types/gasto.type';
 import { mapGastoToDetalleMensual, mapGastoToGastoType } from './gastos.mapper';
 
 export async function getGastos() {
@@ -121,4 +121,33 @@ export async function getPagosMesAnho(month: number, year: number) {
   });
 
   return filtered.map(g => mapGastoToDetalleMensual(g, { month, year }));
+}
+
+const MONTHS_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+export async function getGastosParaDashboard(year: number): Promise<DashboardData> {
+  const gastos = await prisma.gasto.findMany({
+    where: { finalizado: false },
+    include: { categoria: true },
+  });
+
+  const categorySet = new Set<string>();
+  const data: MonthData[] = [];
+
+  for (let month = 0; month <= 11; month++) {
+    const active = gastos.filter(g => {
+      if (g.tipoGasto !== 'PRESTAMO' || !g.fechaInicio) return true;
+      const cuota = (year - g.fechaInicio.getFullYear()) * 12 + (month - g.fechaInicio.getMonth()) + 1;
+      return cuota >= 1 && cuota <= g.totalCuotas;
+    });
+
+    const entry: MonthData = { mes: MONTHS_ES[month] };
+    for (const g of active) {
+      categorySet.add(g.categoria.nombre);
+      entry[g.categoria.nombre] = ((entry[g.categoria.nombre] as number | undefined) ?? 0) + g.montoDeuda;
+    }
+    data.push(entry);
+  }
+
+  return { data, categories: Array.from(categorySet) };
 }
