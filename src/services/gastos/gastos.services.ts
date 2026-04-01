@@ -12,3 +12,8 @@ export async function getGastos() {
   });
   return gasto.map(mapGastoToGastoType);
 }
+
+
+export async function createGasto(data: unknown) {
+  
+}

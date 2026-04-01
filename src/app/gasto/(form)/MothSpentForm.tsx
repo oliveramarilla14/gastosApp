@@ -41,14 +41,48 @@ export default function MothSpentForm() {
     defaultValues
   });
 
-  const { handleSubmit } = form;
+  const {
+    handleSubmit,
+    formState: { errors },
+    setError
+  } = form;
   const tipo = useWatch({ control: form.control, name: 'tipo' });
   function onSubmit(data: FormValues) {
-    console.log('Raw data: ', data);
+    let hasErrors = false;
+
+    if (data.tipo === 'Tarjeta' || data.tipo === 'Prestamo') {
+      if (!data.montoTotal) {
+        setError('montoTotal', { message: 'Introduzca un monto válido' });
+        hasErrors = true;
+      }
+    }
+    if (data.tipo === 'Prestamo') {
+      if (!data.totalCuotas) {
+        setError('totalCuotas', { message: 'Introduzca un número válido' });
+        hasErrors = true;
+      }
+    }
+
+    if (hasErrors) return;
+
+    const parsedData = parseFormData(data);
+    console.log('Parsed data: ', parsedData);
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
+      {/* {Object.keys(errors).length > 0 && (
+        <div>
+          <h2>Errors</h2>
+          <ul>
+            {Object.entries(errors).map(([field, error]) => (
+              <li key={field}>
+                <strong>{field}:</strong> {error?.message as string}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )} */}
       <FieldSet>
         <FieldGroup className='grid w-full md:grid-cols-2'>
           <FieldTitle className='text-xl font-bold'>Nuevo Gasto</FieldTitle>
@@ -116,4 +150,24 @@ export default function MothSpentForm() {
       </Button>
     </form>
   );
+}
+
+function parseFormData(data: FormValues) {
+  const response: FormValues = {
+    ...data
+  };
+
+  if (data.tipo === 'Fijo') {
+    response.montoAbonado = undefined;
+    response.montoTotal = undefined;
+    response.cuotasAbonadas = undefined;
+    response.totalCuotas = undefined;
+  }
+
+  if (data.tipo === 'Tarjeta') {
+    response.cuotasAbonadas = undefined;
+    response.totalCuotas = undefined;
+  }
+
+  return response;
 }

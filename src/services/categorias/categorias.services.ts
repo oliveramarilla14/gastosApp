@@ -15,3 +15,14 @@ export async function getCategoriaById(id: string) {
   if (!row) return null;
   return mapCategoriaToType(row);
 }
+
+export async function createCategoria(data: { nombre: string; icon: string }) {
+  return prisma.categoriaGasto.create({ data });
+}
+
+export async function updateCategoria(id: string, data: { nombre: string; icon: string }) {
+  return prisma.categoriaGasto.update({
+    where: { idCategoria: id },
+    data
+  });
+}
