@@ -1,8 +1,9 @@
-import { GastoType } from '@/entites/types/gasto.type';
+import { DetalleMensual, GastoType } from '@/entites/types/gasto.type';
 import { IconName } from '@/lib/icons';
-import { CategoriaGasto, Gasto } from '../../../generated/prisma/client';
+import { CategoriaGasto, Gasto, Pago } from '../../../generated/prisma/client';
 
 type GastoConCategoria = Gasto & { categoria: CategoriaGasto };
+type GastoConPagos = Gasto & { categoria: CategoriaGasto; pagos: Pago[] };
 
 export function mapGastoToGastoType(gasto: GastoConCategoria): GastoType {
   const response: GastoType = {
@@ -20,6 +21,23 @@ export function mapGastoToGastoType(gasto: GastoConCategoria): GastoType {
     totalCuotas: gasto.totalCuotas,
     diaPago: gasto.diaPago,
     icon: gasto.categoria.icon as IconName
+  };
+
+  return response;
+}
+
+export function mapGastoToDetalleMensual(gasto: GastoConPagos): DetalleMensual {
+  console.log('Gasto con pagos:', gasto.pagos.length);
+  const response: DetalleMensual = {
+    idGasto: gasto.idGasto,
+    concepto: gasto.concepto,
+    categoria: gasto.categoria.nombre,
+    pagoMes: gasto.montoDeuda,
+    totalDeuda: gasto.montoTotal,
+    pagado: gasto.pagos.length > 0,
+    monto: gasto.montoDeuda,
+    icon: gasto.categoria.icon as IconName,
+    tipo: gasto.tipoGasto
   };
 
   return response;

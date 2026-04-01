@@ -31,3 +31,16 @@ export interface CreateGastoInput {
   cuotasAbonadas?: number;
   totalCuotas?: number;
 }
+
+
+export interface DetalleMensual {
+  idGasto: string;
+  concepto: string;
+  icon: IconName;
+  categoria: string;
+  pagoMes: number; //cuota o mensualidad de tarjeta
+  totalDeuda: number; //total cuotas o total deuda tarjetau
+  pagado: boolean;
+  monto: number;
+  tipo: TipoGasto;
+}
