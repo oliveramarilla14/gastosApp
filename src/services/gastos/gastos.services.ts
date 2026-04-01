@@ -37,7 +37,19 @@ export async function getGastoConPagos(id: string) {
 
 const tipoMap = { Fijo: 'FIJO', Tarjeta: 'TARJETA', Prestamo: 'PRESTAMO' } as const;
 
+function calcularFechaFinalizacionPrestamo(fechaInicio: string, totalCuotas: number): Date {
+  const d = new Date(fechaInicio);
+  d.setMonth(d.getMonth() + totalCuotas - 1);
+  return d;
+}
+
 export async function createGasto(data: CreateGastoInput) {
+  const fechaInicio = data.fechaInicio ? new Date(data.fechaInicio) : null;
+  const fechaFinalizacion =
+    data.tipo === 'Prestamo' && data.fechaInicio && data.totalCuotas
+      ? calcularFechaFinalizacionPrestamo(data.fechaInicio, data.totalCuotas)
+      : null;
+
   return prisma.gasto.create({
     data: {
       concepto: data.concepto,
@@ -51,12 +63,19 @@ export async function createGasto(data: CreateGastoInput) {
       montoTotal: data.montoTotal ?? 0,
       cuotasAbonadas: data.cuotasAbonadas ?? 0,
       totalCuotas: data.totalCuotas ?? 0,
-      fechaInicio: data.fechaInicio ? new Date(data.fechaInicio) : null
+      fechaInicio,
+      fechaFinalizacion
     }
   });
 }
 
 export async function updateGasto(id: string, data: Omit<CreateGastoInput, 'idOwner'>) {
+  const fechaInicio = data.fechaInicio ? new Date(data.fechaInicio) : null;
+  const fechaFinalizacion =
+    data.tipo === 'Prestamo' && data.fechaInicio && data.totalCuotas
+      ? calcularFechaFinalizacionPrestamo(data.fechaInicio, data.totalCuotas)
+      : null;
+
   return prisma.gasto.update({
     where: { idGasto: id },
     data: {
@@ -70,7 +89,8 @@ export async function updateGasto(id: string, data: Omit<CreateGastoInput, 'idOw
       montoTotal: data.montoTotal ?? 0,
       cuotasAbonadas: data.cuotasAbonadas ?? 0,
       totalCuotas: data.totalCuotas ?? 0,
-      fechaInicio: data.fechaInicio ? new Date(data.fechaInicio) : null
+      fechaInicio,
+      fechaFinalizacion
     }
   });
 }
