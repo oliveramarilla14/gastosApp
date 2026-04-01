@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma';
 import { mapCategoriaToType } from './categorias.mapper';
 
 export async function getCategorias() {
+  
+
   const rows = await prisma.categoriaGasto.findMany({
     orderBy: { createdAt: 'desc' }
   });
@@ -9,6 +11,8 @@ export async function getCategorias() {
 }
 
 export async function getCategoriaById(id: string) {
+  await new Promise(resolve => setTimeout(resolve, 2000));
+
   const row = await prisma.categoriaGasto.findUnique({
     where: { idCategoria: id }
   });
